@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block head %}
+{{ super() }}
+{% block title %}Sign Up{% endblock %}
+{% block stylesheet_filename %}signup.css{% endblock %}
+{% endblock %}
+
+{% block content %}
+{{ super() }}
+<div class="card" id="signup-card">
+  <form>
+    <div class="field">
+      <label class="label">Username</label>
+      <div class="control">
+        <input class="input" name="username" type="text" placeholder="e.g Alex Smith">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Email</label>
+      <div class="control">
+        <input class="input" name="email" type="email" placeholder="e.g. alexsmith@gmail.com">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Password (at least 6 characters)</label>
+      <div class="control">
+        <input class="input" name="pwd" type="email" placeholder="Make sure it's a strong password!">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Re-enter your password</label>
+      <div class="control">
+        <input class="input" name="pwd_confirm" type="email" placeholder="Case sensitive">
+      </div>
+    </div>
+
+    <div class="field is-grouped">
+      <div class="control">
+        <input type="submit" class="button is-link">
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

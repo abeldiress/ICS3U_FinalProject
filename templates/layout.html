@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% block head %}
+    <meta charset="utf-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="/static/{% block stylesheet_filename %}{% endblock %}">
+    {% endblock %}
+  </head>
+  <body style="display: flex;">
+    {% block content %}
+    {% endblock %}
+  </body>
+</html>
