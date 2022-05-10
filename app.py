@@ -1,9 +1,18 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for, make_response
+from requests import HTTPError
 import pyrebase
 
 app = Flask(__name__)
 
-config = {}
+config = {
+    'apiKey': "AIzaSyA7LKeXKzL7r09GBvpVFx6uje023E2Q6BU",
+    'authDomain': "ics-final-project.firebaseapp.com",
+    'databaseURL': "https://ics-final-project-default-rtdb.firebaseio.com",
+    'projectId': "ics-final-project",
+    'storageBucket': "ics-final-project.appspot.com",
+    'messagingSenderId': "337514158551",
+    'appId': "1:337514158551:web:6cdae623b07b070c9f1392"
+}
 
 firebase = pyrebase.initialize_app(config)
 auth = firebase.auth()
@@ -11,13 +20,26 @@ db = firebase.database()
 
 @app.route('/')
 def home():
-    return render_template('signup.html')
+    return redirect(url_for('signup'))
 
+@app.route('/verify')
+def verify():
+    if str(request.cookies.get('email')) == 'None' or str(request.cookies.get('email')) == '':
+        return redirect(url_for('login'))
+
+    email = request.cookies.get('email')
+    password = request.cookies.get('password')
+    user = auth.sign_in_with_email_and_password(email, password)
+    if not auth.get_account_info(user['idToken'])['users'][0]['emailVerified']:
+        auth.send_email_verification(user['idToken'])
+        return '<h1 style="font-family: Source Sans Pro;" align="center">Your account has yet to be verified. Check your email to verify this account.</h1>'
+    else:
+        return redirect(url_for('matches'))
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        name = request.form['name']
+        name = request.form['username']
         email = request.form['email']
         pwd = request.form['pwd']
         pwd_confirm = request.form['pwd_confirm']
