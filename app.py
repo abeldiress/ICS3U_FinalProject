@@ -20,7 +20,7 @@ db = firebase.database()
 
 @app.route('/')
 def home():
-    return redirect(url_for('signup'))
+    return render_template('home.html')
 
 @app.route('/verify')
 def verify():
