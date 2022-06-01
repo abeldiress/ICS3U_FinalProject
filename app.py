@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response
 from requests import HTTPError
+from datetime import datetime
 import pyrebase
 
 app = Flask(__name__)
@@ -98,5 +99,41 @@ def login():
     except:
         return render_template('login.html', invalidPwd=False)
 
+    
+@app.route('/question', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        title = request.form['email']
+        txt = request.form['pwd']        
+        
+        if str(request.cookies.get('email')) == 'None' or str(request.cookies.get('email')) == '':
+            return redirect(url_for('login'))
+
+        email = request.cookies.get('email')
+        password = request.cookies.get('password')
+        user = auth.sign_in_with_email_and_password(email, password)
+        
+        question = {'title': title, 'txt': txt, 'name': user.name, 'date': datetime.now()}
+
+        try:
+            user = auth.sign_in_with_email_and_password(email, pwd)
+            accountInfo = auth.get_account_info(user['idToken'])
+
+            resp = make_response(redirect(url_for('verify')))
+            resp.set_cookie('email', email)
+            resp.set_cookie('password', password)
+            return resp
+        except HTTPError as e:
+            e = str(e)
+            if 'EMAIL_NOT_FOUND' in e:
+                return render_template('login.html', invalidPwd=True, content='This account doesn\'t exist. Try a different email or create an account.')
+            elif 'INVALID_PASSWORD' in e:
+                return render_template('login.html', invalidPwd=True, content='Incorrect Password. Double check and try again.')
+            elif 'TOO_MANY_ATTEMPTS_TRY_LATER' in e:
+                return render_template('login.html', invalidPwd=True, content='Too many unsuccessful login attempts. Please try again later.')
+                    
+        return redirect(url_for('home'))
+        
+    return render_template('question.html')
 
 app.run(port=4000, debug=True)
