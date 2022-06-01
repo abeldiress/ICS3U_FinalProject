@@ -114,23 +114,8 @@ def login():
         user = auth.sign_in_with_email_and_password(email, password)
         
         question = {'title': title, 'txt': txt, 'name': user.name, 'date': datetime.now()}
-
-        try:
-            user = auth.sign_in_with_email_and_password(email, pwd)
-            accountInfo = auth.get_account_info(user['idToken'])
-
-            resp = make_response(redirect(url_for('verify')))
-            resp.set_cookie('email', email)
-            resp.set_cookie('password', password)
-            return resp
-        except HTTPError as e:
-            e = str(e)
-            if 'EMAIL_NOT_FOUND' in e:
-                return render_template('login.html', invalidPwd=True, content='This account doesn\'t exist. Try a different email or create an account.')
-            elif 'INVALID_PASSWORD' in e:
-                return render_template('login.html', invalidPwd=True, content='Incorrect Password. Double check and try again.')
-            elif 'TOO_MANY_ATTEMPTS_TRY_LATER' in e:
-                return render_template('login.html', invalidPwd=True, content='Too many unsuccessful login attempts. Please try again later.')
+        
+        db.child('/questions/').push(question, user['idToken'])
                     
         return redirect(url_for('home'))
         
