@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response
 from requests import HTTPError
-from datetime import datetime
+from datetime import date, datetime
 import pyrebase
 
 app = Flask(__name__)
@@ -19,10 +19,70 @@ firebase = pyrebase.initialize_app(config)
 auth = firebase.auth()
 db = firebase.database()
 
+def accountInfo(req):
+    if str(req.cookies.get('email')) == 'None' or str(req.cookies.get('email')) == '':
+        return redirect(url_for('login'))
+
+    email = req.cookies.get('email')
+    password = req.cookies.get('password')
+
+    user = auth.sign_in_with_email_and_password(email, password)
+
+    accountInfo = auth.get_account_info(user['idToken'])
+    return db.child('/users/' + accountInfo['users'][0]['localId'] + '/').get(user['idToken'])
+
+@app.route('/logout')
+def logout():
+    request.cookies.pop('email', None)
+    request.cookies.pop('password', None)
+    return redirect(url_for('login'))
+
+# home function
 @app.route('/')
 def home():
-    return render_template('home.html')
+    if str(request.cookies.get('email')) == 'None' or str(request.cookies.get('email')) == '':
+        return redirect(url_for('login'))
 
+    email = request.cookies.get('email')
+    password = request.cookies.get('password')
+
+    user = auth.sign_in_with_email_and_password(email, password)
+
+    questions = list(dict(db.child('/questions').get().val()).values())
+
+    for q in questions:
+        if q['date'] == datetime.now().strftime('%d-%m-%y'):
+            questions.remove(q)
+    
+    expanded_date = datetime.now().strftime('%B %d, 20%y')
+    return render_template('home.html', questions=questions, num_of_questions=len(questions), expanded_date=expanded_date)
+
+@app.route('/question', methods=['GET', 'POST'])
+def question():
+    if request.method == 'POST':
+        title = request.form['title']
+        question = request.form['question']        
+        
+        if str(request.cookies.get('email')) == 'None' or str(request.cookies.get('email')) == '':
+            return redirect(url_for('login'))
+
+        email = request.cookies.get('email')
+        password = request.cookies.get('password')
+        user = auth.sign_in_with_email_and_password(email, password)
+
+        accountInfo = auth.get_account_info(user['idToken'])
+        userInfo = dict(db.child('/users/' + accountInfo['users'][0]['localId'] + '/').get(user['idToken']).val())
+
+        name = userInfo[list(userInfo.keys())[0]]['name']
+        
+        question = {'title': title, 'question': question, 'name': name, 'email': user['email'], 'time': datetime.now().strftime('%H:%M:%S'), 'date': datetime.now().strftime('%d:%m:%y')}
+        
+        db.child('/questions/').push(question, user['idToken'])
+                    
+        return redirect(url_for('home'))
+    return render_template('question.html')
+
+# verify email function
 @app.route('/verify')
 def verify():
     if str(request.cookies.get('email')) == 'None' or str(request.cookies.get('email')) == '':
@@ -35,7 +95,7 @@ def verify():
         auth.send_email_verification(user['idToken'])
         return '<h1 style="font-family: Source Sans Pro;" align="center">Your account has yet to be verified. Check your email to verify this account.</h1>'
     else:
-        return redirect(url_for('matches'))
+        return redirect(url_for('home'))
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -78,7 +138,7 @@ def login():
 
             resp = make_response(redirect(url_for('verify')))
             resp.set_cookie('email', email)
-            resp.set_cookie('password', password)
+            resp.set_cookie('password', pwd)
             return resp
         except HTTPError as e:
             e = str(e)
@@ -95,30 +155,9 @@ def login():
         email = request.cookies.get('email')
         password = request.cookies.get('password')
         user = auth.sign_in_with_email_and_password(email, password)
-        return redirect(url_for('matches'))
+        return redirect(url_for('home'))
     except:
         return render_template('login.html', invalidPwd=False)
 
-    
-@app.route('/question', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        title = request.form['email']
-        txt = request.form['pwd']        
-        
-        if str(request.cookies.get('email')) == 'None' or str(request.cookies.get('email')) == '':
-            return redirect(url_for('login'))
-
-        email = request.cookies.get('email')
-        password = request.cookies.get('password')
-        user = auth.sign_in_with_email_and_password(email, password)
-        
-        question = {'title': title, 'txt': txt, 'name': user.name, 'date': datetime.now()}
-        
-        db.child('/questions/').push(question, user['idToken'])
-                    
-        return redirect(url_for('home'))
-        
-    return render_template('question.html')
 
 app.run(port=4000, debug=True)
