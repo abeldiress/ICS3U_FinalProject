@@ -1,8 +1,8 @@
 <html lang="en">
   <head>
+    <title>Home</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css"
@@ -22,27 +22,9 @@
     ></script>
   </head>
   <nav class="navbar" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
-      <a class="navbar-item" href="{{ url_for('home') }}">
-        <img src="{{ url_for('static', filename='logo.png') }}" height="28" />
-      </a>
-
-      <a
-        role="button"
-        class="navbar-burger burger"
-        aria-label="menu"
-        aria-expanded="true"
-        data-target="navbarBasicExample"
-      >
-        <span aria-hidden="false"></span>
-        <span aria-hidden="false"></span>
-        <span aria-hidden="false"></span>
-      </a>
-    </div>
-
-    <div id="navbarBasicExample" class="navbar-menu">
+    <div id="navbar" class="navbar-menu">
       <div class="navbar-start">
-        <a class="navbar-item"> Post Resources </a>
+        <a class="navbar-item" href="{{ url_for('logout') }}"> Logout </a>
       </div>
 
       <div class="navbar-end">
@@ -60,7 +42,7 @@
     <div class="container">
       <h1 class="title">Questions Asked on {{ expanded_date }}.</h1>
       <h1 class="subtitle">
-        {{ num_of_questions }} questions were asked today.
+        {{ num_of_questions }} question(s) were asked today.
       </h1>
       <div
         class="notification is-danger"
@@ -77,37 +59,50 @@
           <div class="column is-three-fifths">
             <h1 class="title" style="margin-bottom: 0.95rem"><i>Posts</i></h1>
             {% for post in questions %}
-            <div class="box" id="delete-{{ post['id'] }}">
-              <article class="media">
-                <div class="media-content">
-                  <div class="content">
-                    <h1 class="title is-4">{{ post['title'] }}</h1>
-                    <p class="subtitle is-6" style="color: brown">
-                      Posted by {{ post['name'] }} at {{ post['time'] }}
-                    </p>
-                    <hr style="margin-top: 0" />
-                    <p style="margin-bottom: 7px">{{ post['question'] }}</p>
-                  </div>
-                  <nav class="level is-mobile">
-                    <div class="level-left">
-                      {% if login %}
-                      <a
-                        class="button is-danger"
-                        onclick="deletePost('{{ post['id'] }}');"
-                        style="margin-right: 10px"
-                        >Delete</a
-                      >
+              {% if not post['resource'] %}
+                <div class="box">
+                  <article class="media">
+                    <div class="media-content">
+                      <div class="content">
+                        <h1 class="title is-4">{{ post['title'] }}</h1>
+                        <p class="subtitle is-6" style="color: brown">
+                          Posted by {{ post['name'] }} at {{ post['time'] }}
+                        </p>
+                        {% if not post['resource'] %}
+                          <a href="/resource/{{ post['id'] }}">Post to Resources</a>
+                        {% endif %}
+                        <hr style="margin-top: 0" />
+                        <p style="margin-bottom: 7px">{{ post['question'] }}</p>
+                      </div>
+                      <nav class="level is-mobile">
+                        <div class="level-left">
+                          <a class="level-item" href="/reply/{{ post['id'] }}">
+                            <span class="icon is-small"
+                              ><i class="fas fa-reply"></i
+                            ></span>
+                          </a>
+                        </div>
+                      </nav>
+                      {% if post['replies'] %}
+                        <h1 class="title is-5">Replies</h1>
+                        <hr style="margin-top: 0" />
+                        <ul>
+                          {% for reply in post['replies'] %}
+                            <li>
+                              <p class="subtitle is-6">
+                                Asked by {{ reply['user'] }} at {{ reply['time'] }}
+                              </p>
+                              <p>{{ reply['text'] }}</p>
+                            </li>
+                            <br>
+                            <hr style="margin-top: 0" />
+                          {% endfor %}
+                        </ul>
                       {% endif %}
-                      <a class="level-item">
-                        <span class="icon is-small"
-                          ><i class="fas fa-reply"></i
-                        ></span>
-                      </a>
                     </div>
-                  </nav>
+                  </article>
                 </div>
-              </article>
-            </div>
+              {% endif %}
             {% endfor %}
           </div>
           <div class="column is-hidden-mobile">
@@ -116,39 +111,21 @@
               <div class="content">
                 <h1 class="title is-3">Resources</h1>
                 <p class="subtitle is-5">
-                  Here is the list of posted resources.
+                  Here is the list of posted resources. This will be saved.
                 </p>
                 <ol style="margin-left: 25px">
-                  <li>
-                    Title of Resource
-                    <br />
-                    <small>{30 chars of text}</small>
-                  </li>
+                  {% for post in questions %}
+                    {% if post['resource'] %}
+                      <li>
+                        {{ post['title'] }}
+                        <br />
+                        <small>{{ post['question'] }}</small>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
                 </ol>
-                <p style="color: brown">Full list of resources.</p>
               </div>
             </div>
-            <!-- <div class="box">
-              <h1 class="title is-4">Somehow intrested?</h1>
-              <p class="subtitle is-6">
-                If, somehow, you want to read more of this, put your email
-                address to receive notifications when I post (if i ever)
-              </p>
-              <form method="POST">
-                <input
-                  class="input is-info"
-                  type="text"
-                  placeholder="Enter email address..."
-                  disabled
-                />
-                <input
-                  class="button is-info"
-                  type="submit"
-                  style="margin-top: 1.5rem"
-                  disabled
-                />
-              </form>
-            </div> -->
           </div>
         </div>
       </div>
