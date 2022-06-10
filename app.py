@@ -11,6 +11,7 @@ import pyrebase
 
 # inital flask app
 app = Flask(__name__)
+# SOurce [1]
 
 # configuration settings for database
 config = {
@@ -24,7 +25,9 @@ config = {
 }
 
 # initalized connection to firebase database based on configurations above
+# Source [5]
 firebase = pyrebase.initialize_app(config)
+# Source [6]
 auth = firebase.auth()
 db = firebase.database()
 
@@ -39,6 +42,8 @@ def getUser(req):
     # gets user cookies and logs them in
     email = req.cookies.get('email')
     password = req.cookies.get('password')
+
+    # Source [6]
     user = auth.sign_in_with_email_and_password(email, password)
 
     return user
@@ -99,6 +104,7 @@ def home():
     expanded_date = datetime.now().strftime('%B %d, 20%y')
 
     # returns home.html with all the questions, number, and date
+    # Source [3]
     return render_template('home.html', questions=present_questions, num_of_questions=num_of_questions, expanded_date=expanded_date)
 
 @app.route('/question', methods=['GET', 'POST'])
@@ -295,7 +301,7 @@ def login():
     Returns:
         verify: Response
     '''
-    
+
     if request.method == 'POST':
         # get inputted user data
         email = request.form['email']
@@ -330,3 +336,6 @@ def login():
 
 # runs all the routing functions on a WSGI web app on port 4000
 app.run(port=4000, debug=True)
+# Source [1]
+
+# Source [2] was intended to be intially used, but I removed it later from the progam but kept it in citations to show my process.
