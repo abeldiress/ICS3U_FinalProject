@@ -50,26 +50,26 @@ If you encounter any unexpected errors or occurences, contact abeldiress05@gmail
 
 # Sources
 List of my sources:
-https://flask.palletsprojects.com/en/2.1.x/quickstart/#a-minimal-application
+1. https://flask.palletsprojects.com/en/2.1.x/quickstart/#a-minimal-application
 Starting code for Flask application.
 
-https://docs.python.org/3/library/venv.html
+2. https://docs.python.org/3/library/venv.html
 Creation of virtual python environment.
 
-https://flask.palletsprojects.com/en/1.1.x/patterns/templateinheritance/
+3. https://flask.palletsprojects.com/en/1.1.x/patterns/templateinheritance/
 Template inheritance for HTML file renders in Flask.
 
-https://bulma.io/documentation/overview/start/
+4. https://bulma.io/documentation/overview/start/
 Importing the Bulma CSS framework (frontend).
 
-https://github.com/thisbejim/Pyrebase
+5. https://github.com/thisbejim/Pyrebase
 Pyrebase - A simple python wrapper for the Firebase API.
 
-https://firebase.google.com/docs/auth
+6. https://firebase.google.com/docs/auth
 Firebase Authentication Documentation.
 
-https://firebase.google.com/docs/database
+7. https://firebase.google.com/docs/database
 Firebase Database Documentation.
 
-https://www.tutorialspoint.com/flask/flask_cookies.htm
+8. https://www.tutorialspoint.com/flask/flask_cookies.htm
 Cookies tutorial in Flask.
