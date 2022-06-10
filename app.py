@@ -78,7 +78,7 @@ def home():
 
     # checks if user is logged in, if not, redirects to login page
     if str(request.cookies.get('email')) == 'None' or str(request.cookies.get('email')) == '':
-        return redirect(url_for('login'))
+        return redirect(url_for('signup'))
 
     # gets all questions from database and their ids
     all_questions = list(dict(db.child('/questions').get().val()).values())
