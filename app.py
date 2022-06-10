@@ -29,6 +29,7 @@ config = {
 firebase = pyrebase.initialize_app(config)
 # Source [6]
 auth = firebase.auth()
+# Source [7] - *all uses of db cite this source
 db = firebase.database()
 
 def getUser(req):
@@ -40,6 +41,7 @@ def getUser(req):
         user: Pyrebase User
     '''
     # gets user cookies and logs them in
+    # Source [8]
     email = req.cookies.get('email')
     password = req.cookies.get('password')
 
@@ -129,6 +131,7 @@ def question():
         question = request.form['question']        
         
         # checks if user is logged in, if not, redirects to login page
+        # Source [8]
         if str(request.cookies.get('email')) == 'None' or str(request.cookies.get('email')) == '':
             return redirect(url_for('login'))
 
